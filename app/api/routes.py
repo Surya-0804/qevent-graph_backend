@@ -1,63 +1,29 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from app.quantum.circuits import bell_circuit, ghz_circuit, random_circuit
-from app.quantum.runner import run_circuit
-from app.logging.event_extractor import extract_events
-from app.graph.graph_builder import build_event_graph
-from fastapi import HTTPException
+from app.services.execution_service import execute_with_observability
 
 router = APIRouter(prefix="/api")
 
-@router.get("/health")
-def health():
-    return {"status": "healthy"}
-
 
 @router.post("/execute")
-def execute():
-    """
-    Execute a default Bell state circuit.
-    """
+def execute_default():
     qc = bell_circuit()
-    counts = run_circuit(qc)
-    events = extract_events(qc)
-    graph = build_event_graph(events)
-
-    return {
-        "counts": counts,
-        "event_count": len(events),
-        "events": [e.__dict__ for e in events],
-        "nodes": list(graph.nodes(data=True)),
-        "edges": list(graph.edges(data=True))
-    }
-
+    return execute_with_observability(qc, "bell")
 
 
 @router.post("/execute/{circuit_name}")
-def execute_circuit(circuit_name: str):
-    """
-    Execute a predefined circuit by name.
-    Supported circuit names: "bell", "ghz", "random"
-    """
-    # Select circuit based on name
+def execute_named(circuit_name: str, gate_count: int = 5):
+
     if circuit_name == "bell":
         qc = bell_circuit()
     elif circuit_name == "ghz":
         qc = ghz_circuit()
     elif circuit_name == "random":
-        qc = random_circuit()
+        qc = random_circuit(num_gates=gate_count)
     else:
-        raise HTTPException(status_code=404, detail=f"Circuit '{circuit_name}' not found")
-    
-    # Execute circuit and build graph
-    counts = run_circuit(qc)
-    events = extract_events(qc)
-    graph = build_event_graph(events)
+        raise HTTPException(
+            status_code=404,
+            detail=f"Circuit '{circuit_name}' not found"
+        )
 
-    return {
-        "circuit_name": circuit_name,
-        "counts": counts,
-        "event_count": len(events),
-        "events": [e.__dict__ for e in events],
-        "nodes": list(graph.nodes(data=True)),
-        "edges": list(graph.edges(data=True))
-    }
+    return execute_with_observability(qc, circuit_name)
