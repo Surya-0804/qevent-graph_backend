@@ -16,9 +16,9 @@ def ghz_circuit():
     qc.measure([0, 1, 2], [0, 1, 2])
     return qc
 
-def random_circuit():
+def random_circuit(num_gates=5):
     qc = QuantumCircuit(2, 2)
-    for _ in range(5):
+    for _ in range(num_gates):
         gate = rand.choice(['h', 'x', 'y', 'z'])
         qubit = rand.randint(0, 1)
         if gate == 'h':
