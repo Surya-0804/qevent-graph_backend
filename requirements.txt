@@ -4,3 +4,4 @@ qiskit
 qiskit_aer
 networkx
 neo4j
+python-dotenv
