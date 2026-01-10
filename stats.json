@@ -1,569 +1,518 @@
 {
-    "bell-5":{
-  "execution_id": "a9bb3a0d-71da-499e-9ad0-9e9bf197159c",
-  "circuit_name": "bell",
-  "num_gates": 4,
-  "num_events": 6,
-  "event_extraction_time_ms": 0.1702,
-  "in_memory_graph_time_ms": 0.5744,
-  "neo4j_persistence_time_ms": 628.828,
-  "total_observability_time_ms": 629.5726,
-  "counts": {
-    "11": 488,
-    "00": 536
-  },
-  "events": [
-    {
-      "event_id": 0,
-      "event_type": "EXECUTION_START",
-      "timestamp": 0
+  "bell-5": {
+    "execution_id": "a9bb3a0d-71da-499e-9ad0-9e9bf197159c",
+    "circuit_name": "bell",
+    "num_gates": 4,
+    "num_events": 6,
+    "event_extraction_time_ms": 0.1702,
+    "in_memory_graph_time_ms": 0.5744,
+    "neo4j_persistence_time_ms": 628.828,
+    "total_observability_time_ms": 629.5726,
+    "counts": {
+      "11": 488,
+      "00": 536
     },
-    {
-      "event_id": 1,
-      "event_type": "GATE",
-      "timestamp": 1,
-      "gate_name": "H",
-      "qubits": [
-        0
-      ]
-    },
-    {
-      "event_id": 2,
-      "event_type": "GATE",
-      "timestamp": 2,
-      "gate_name": "CX",
-      "qubits": [
-        0,
-        1
-      ]
-    },
-    {
-      "event_id": 3,
-      "event_type": "MEASUREMENT",
-      "timestamp": 3,
-      "qubits": [
-        0
-      ],
-      "classical_bits": [
-        0
-      ],
-      "outcome": null
-    },
-    {
-      "event_id": 4,
-      "event_type": "MEASUREMENT",
-      "timestamp": 4,
-      "qubits": [
-        1
-      ],
-      "classical_bits": [
-        1
-      ],
-      "outcome": null
-    },
-    {
-      "event_id": 5,
-      "event_type": "EXECUTION_END",
-      "timestamp": 5
-    }
-  ],
-  "nodes": [
-    [
-      0,
+    "events": [
       {
-        "type": "EXECUTION_START",
+        "event_id": 0,
+        "event_type": "EXECUTION_START",
         "timestamp": 0
-      }
-    ],
-    [
-      1,
+      },
       {
-        "type": "GATE",
-        "timestamp": 1
-      }
-    ],
-    [
-      2,
+        "event_id": 1,
+        "event_type": "GATE",
+        "timestamp": 1,
+        "gate_name": "H",
+        "qubits": [0]
+      },
       {
-        "type": "GATE",
-        "timestamp": 2
-      }
-    ],
-    [
-      3,
+        "event_id": 2,
+        "event_type": "GATE",
+        "timestamp": 2,
+        "gate_name": "CX",
+        "qubits": [0, 1]
+      },
       {
-        "type": "MEASUREMENT",
-        "timestamp": 3
-      }
-    ],
-    [
-      4,
+        "event_id": 3,
+        "event_type": "MEASUREMENT",
+        "timestamp": 3,
+        "qubits": [0],
+        "classical_bits": [0],
+        "outcome": null
+      },
       {
-        "type": "MEASUREMENT",
-        "timestamp": 4
-      }
-    ],
-    [
-      5,
+        "event_id": 4,
+        "event_type": "MEASUREMENT",
+        "timestamp": 4,
+        "qubits": [1],
+        "classical_bits": [1],
+        "outcome": null
+      },
       {
-        "type": "EXECUTION_END",
-        "timestamp": 5
-      }
-    ]
-  ],
-  "edges": [
-    [
-      0,
-      1,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      1,
-      2,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      2,
-      3,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      3,
-      4,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      4,
-      5,
-      {
-        "relation": "NEXT"
-      }
-    ]
-  ]
-},
-"ghz-5":{
-  "execution_id": "2b912ebf-5f48-402e-8500-28f3fb8271a8",
-  "circuit_name": "ghz",
-  "num_gates": 6,
-  "num_events": 8,
-  "event_extraction_time_ms": 0.1141,
-  "in_memory_graph_time_ms": 0.1072,
-  "neo4j_persistence_time_ms": 52.1642,
-  "total_observability_time_ms": 52.3855,
-  "counts": {
-    "111": 499,
-    "000": 525
-  },
-  "events": [
-    {
-      "event_id": 0,
-      "event_type": "EXECUTION_START",
-      "timestamp": 0
-    },
-    {
-      "event_id": 1,
-      "event_type": "GATE",
-      "timestamp": 1,
-      "gate_name": "H",
-      "qubits": [
-        0
-      ]
-    },
-    {
-      "event_id": 2,
-      "event_type": "GATE",
-      "timestamp": 2,
-      "gate_name": "CX",
-      "qubits": [
-        0,
-        1
-      ]
-    },
-    {
-      "event_id": 3,
-      "event_type": "GATE",
-      "timestamp": 3,
-      "gate_name": "CX",
-      "qubits": [
-        0,
-        2
-      ]
-    },
-    {
-      "event_id": 4,
-      "event_type": "MEASUREMENT",
-      "timestamp": 4,
-      "qubits": [
-        0
-      ],
-      "classical_bits": [
-        0
-      ],
-      "outcome": null
-    },
-    {
-      "event_id": 5,
-      "event_type": "MEASUREMENT",
-      "timestamp": 5,
-      "qubits": [
-        1
-      ],
-      "classical_bits": [
-        1
-      ],
-      "outcome": null
-    },
-    {
-      "event_id": 6,
-      "event_type": "MEASUREMENT",
-      "timestamp": 6,
-      "qubits": [
-        2
-      ],
-      "classical_bits": [
-        2
-      ],
-      "outcome": null
-    },
-    {
-      "event_id": 7,
-      "event_type": "EXECUTION_END",
-      "timestamp": 7
-    }
-  ],
-  "nodes": [
-    [
-      0,
-      {
-        "type": "EXECUTION_START",
-        "timestamp": 0
-      }
-    ],
-    [
-      1,
-      {
-        "type": "GATE",
-        "timestamp": 1
-      }
-    ],
-    [
-      2,
-      {
-        "type": "GATE",
-        "timestamp": 2
-      }
-    ],
-    [
-      3,
-      {
-        "type": "GATE",
-        "timestamp": 3
-      }
-    ],
-    [
-      4,
-      {
-        "type": "MEASUREMENT",
-        "timestamp": 4
-      }
-    ],
-    [
-      5,
-      {
-        "type": "MEASUREMENT",
+        "event_id": 5,
+        "event_type": "EXECUTION_END",
         "timestamp": 5
       }
     ],
-    [
-      6,
-      {
-        "type": "MEASUREMENT",
-        "timestamp": 6
-      }
+    "nodes": [
+      [
+        0,
+        {
+          "type": "EXECUTION_START",
+          "timestamp": 0
+        }
+      ],
+      [
+        1,
+        {
+          "type": "GATE",
+          "timestamp": 1
+        }
+      ],
+      [
+        2,
+        {
+          "type": "GATE",
+          "timestamp": 2
+        }
+      ],
+      [
+        3,
+        {
+          "type": "MEASUREMENT",
+          "timestamp": 3
+        }
+      ],
+      [
+        4,
+        {
+          "type": "MEASUREMENT",
+          "timestamp": 4
+        }
+      ],
+      [
+        5,
+        {
+          "type": "EXECUTION_END",
+          "timestamp": 5
+        }
+      ]
     ],
-    [
-      7,
-      {
-        "type": "EXECUTION_END",
-        "timestamp": 7
-      }
+    "edges": [
+      [
+        0,
+        1,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        1,
+        2,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        2,
+        3,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        3,
+        4,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        4,
+        5,
+        {
+          "relation": "NEXT"
+        }
+      ]
     ]
-  ],
-  "edges": [
-    [
-      0,
-      1,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      1,
-      2,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      2,
-      3,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      3,
-      4,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      4,
-      5,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      5,
-      6,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      6,
-      7,
-      {
-        "relation": "NEXT"
-      }
-    ]
-  ]
-},
-"random-5":{
-  "execution_id": "94ae88d1-3f08-4efb-8b2c-6c8eb17a242e",
-  "circuit_name": "random",
-  "num_gates": 7,
-  "num_events": 9,
-  "event_extraction_time_ms": 0.0976,
-  "in_memory_graph_time_ms": 0.0936,
-  "neo4j_persistence_time_ms": 169.4873,
-  "total_observability_time_ms": 169.6785,
-  "counts": {
-    "00": 1024
   },
-  "events": [
-    {
-      "event_id": 0,
-      "event_type": "EXECUTION_START",
-      "timestamp": 0
+  "ghz-5": {
+    "execution_id": "2b912ebf-5f48-402e-8500-28f3fb8271a8",
+    "circuit_name": "ghz",
+    "num_gates": 6,
+    "num_events": 8,
+    "event_extraction_time_ms": 0.1141,
+    "in_memory_graph_time_ms": 0.1072,
+    "neo4j_persistence_time_ms": 52.1642,
+    "total_observability_time_ms": 52.3855,
+    "counts": {
+      "111": 499,
+      "000": 525
     },
-    {
-      "event_id": 1,
-      "event_type": "GATE",
-      "timestamp": 1,
-      "gate_name": "Z",
-      "qubits": [
-        0
-      ]
-    },
-    {
-      "event_id": 2,
-      "event_type": "GATE",
-      "timestamp": 2,
-      "gate_name": "X",
-      "qubits": [
-        1
-      ]
-    },
-    {
-      "event_id": 3,
-      "event_type": "GATE",
-      "timestamp": 3,
-      "gate_name": "X",
-      "qubits": [
-        0
-      ]
-    },
-    {
-      "event_id": 4,
-      "event_type": "GATE",
-      "timestamp": 4,
-      "gate_name": "Y",
-      "qubits": [
-        1
-      ]
-    },
-    {
-      "event_id": 5,
-      "event_type": "GATE",
-      "timestamp": 5,
-      "gate_name": "X",
-      "qubits": [
-        0
-      ]
-    },
-    {
-      "event_id": 6,
-      "event_type": "MEASUREMENT",
-      "timestamp": 6,
-      "qubits": [
-        0
-      ],
-      "classical_bits": [
-        0
-      ],
-      "outcome": null
-    },
-    {
-      "event_id": 7,
-      "event_type": "MEASUREMENT",
-      "timestamp": 7,
-      "qubits": [
-        1
-      ],
-      "classical_bits": [
-        1
-      ],
-      "outcome": null
-    },
-    {
-      "event_id": 8,
-      "event_type": "EXECUTION_END",
-      "timestamp": 8
-    }
-  ],
-  "nodes": [
-    [
-      0,
+    "events": [
       {
-        "type": "EXECUTION_START",
+        "event_id": 0,
+        "event_type": "EXECUTION_START",
         "timestamp": 0
-      }
-    ],
-    [
-      1,
+      },
       {
-        "type": "GATE",
-        "timestamp": 1
-      }
-    ],
-    [
-      2,
+        "event_id": 1,
+        "event_type": "GATE",
+        "timestamp": 1,
+        "gate_name": "H",
+        "qubits": [0]
+      },
       {
-        "type": "GATE",
-        "timestamp": 2
-      }
-    ],
-    [
-      3,
+        "event_id": 2,
+        "event_type": "GATE",
+        "timestamp": 2,
+        "gate_name": "CX",
+        "qubits": [0, 1]
+      },
       {
-        "type": "GATE",
-        "timestamp": 3
-      }
-    ],
-    [
-      4,
+        "event_id": 3,
+        "event_type": "GATE",
+        "timestamp": 3,
+        "gate_name": "CX",
+        "qubits": [0, 2]
+      },
       {
-        "type": "GATE",
-        "timestamp": 4
-      }
-    ],
-    [
-      5,
+        "event_id": 4,
+        "event_type": "MEASUREMENT",
+        "timestamp": 4,
+        "qubits": [0],
+        "classical_bits": [0],
+        "outcome": null
+      },
       {
-        "type": "GATE",
-        "timestamp": 5
-      }
-    ],
-    [
-      6,
+        "event_id": 5,
+        "event_type": "MEASUREMENT",
+        "timestamp": 5,
+        "qubits": [1],
+        "classical_bits": [1],
+        "outcome": null
+      },
       {
-        "type": "MEASUREMENT",
-        "timestamp": 6
-      }
-    ],
-    [
-      7,
+        "event_id": 6,
+        "event_type": "MEASUREMENT",
+        "timestamp": 6,
+        "qubits": [2],
+        "classical_bits": [2],
+        "outcome": null
+      },
       {
-        "type": "MEASUREMENT",
+        "event_id": 7,
+        "event_type": "EXECUTION_END",
         "timestamp": 7
       }
     ],
-    [
-      8,
+    "nodes": [
+      [
+        0,
+        {
+          "type": "EXECUTION_START",
+          "timestamp": 0
+        }
+      ],
+      [
+        1,
+        {
+          "type": "GATE",
+          "timestamp": 1
+        }
+      ],
+      [
+        2,
+        {
+          "type": "GATE",
+          "timestamp": 2
+        }
+      ],
+      [
+        3,
+        {
+          "type": "GATE",
+          "timestamp": 3
+        }
+      ],
+      [
+        4,
+        {
+          "type": "MEASUREMENT",
+          "timestamp": 4
+        }
+      ],
+      [
+        5,
+        {
+          "type": "MEASUREMENT",
+          "timestamp": 5
+        }
+      ],
+      [
+        6,
+        {
+          "type": "MEASUREMENT",
+          "timestamp": 6
+        }
+      ],
+      [
+        7,
+        {
+          "type": "EXECUTION_END",
+          "timestamp": 7
+        }
+      ]
+    ],
+    "edges": [
+      [
+        0,
+        1,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        1,
+        2,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        2,
+        3,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        3,
+        4,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        4,
+        5,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        5,
+        6,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        6,
+        7,
+        {
+          "relation": "NEXT"
+        }
+      ]
+    ]
+  },
+  "random-5": {
+    "execution_id": "94ae88d1-3f08-4efb-8b2c-6c8eb17a242e",
+    "circuit_name": "random",
+    "num_gates": 7,
+    "num_events": 9,
+    "event_extraction_time_ms": 0.0976,
+    "in_memory_graph_time_ms": 0.0936,
+    "neo4j_persistence_time_ms": 169.4873,
+    "total_observability_time_ms": 169.6785,
+    "counts": {
+      "00": 1024
+    },
+    "events": [
       {
-        "type": "EXECUTION_END",
+        "event_id": 0,
+        "event_type": "EXECUTION_START",
+        "timestamp": 0
+      },
+      {
+        "event_id": 1,
+        "event_type": "GATE",
+        "timestamp": 1,
+        "gate_name": "Z",
+        "qubits": [0]
+      },
+      {
+        "event_id": 2,
+        "event_type": "GATE",
+        "timestamp": 2,
+        "gate_name": "X",
+        "qubits": [1]
+      },
+      {
+        "event_id": 3,
+        "event_type": "GATE",
+        "timestamp": 3,
+        "gate_name": "X",
+        "qubits": [0]
+      },
+      {
+        "event_id": 4,
+        "event_type": "GATE",
+        "timestamp": 4,
+        "gate_name": "Y",
+        "qubits": [1]
+      },
+      {
+        "event_id": 5,
+        "event_type": "GATE",
+        "timestamp": 5,
+        "gate_name": "X",
+        "qubits": [0]
+      },
+      {
+        "event_id": 6,
+        "event_type": "MEASUREMENT",
+        "timestamp": 6,
+        "qubits": [0],
+        "classical_bits": [0],
+        "outcome": null
+      },
+      {
+        "event_id": 7,
+        "event_type": "MEASUREMENT",
+        "timestamp": 7,
+        "qubits": [1],
+        "classical_bits": [1],
+        "outcome": null
+      },
+      {
+        "event_id": 8,
+        "event_type": "EXECUTION_END",
         "timestamp": 8
       }
+    ],
+    "nodes": [
+      [
+        0,
+        {
+          "type": "EXECUTION_START",
+          "timestamp": 0
+        }
+      ],
+      [
+        1,
+        {
+          "type": "GATE",
+          "timestamp": 1
+        }
+      ],
+      [
+        2,
+        {
+          "type": "GATE",
+          "timestamp": 2
+        }
+      ],
+      [
+        3,
+        {
+          "type": "GATE",
+          "timestamp": 3
+        }
+      ],
+      [
+        4,
+        {
+          "type": "GATE",
+          "timestamp": 4
+        }
+      ],
+      [
+        5,
+        {
+          "type": "GATE",
+          "timestamp": 5
+        }
+      ],
+      [
+        6,
+        {
+          "type": "MEASUREMENT",
+          "timestamp": 6
+        }
+      ],
+      [
+        7,
+        {
+          "type": "MEASUREMENT",
+          "timestamp": 7
+        }
+      ],
+      [
+        8,
+        {
+          "type": "EXECUTION_END",
+          "timestamp": 8
+        }
+      ]
+    ],
+    "edges": [
+      [
+        0,
+        1,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        1,
+        2,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        2,
+        3,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        3,
+        4,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        4,
+        5,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        5,
+        6,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        6,
+        7,
+        {
+          "relation": "NEXT"
+        }
+      ],
+      [
+        7,
+        8,
+        {
+          "relation": "NEXT"
+        }
+      ]
     ]
-  ],
-  "edges": [
-    [
-      0,
-      1,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      1,
-      2,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      2,
-      3,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      3,
-      4,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      4,
-      5,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      5,
-      6,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      6,
-      7,
-      {
-        "relation": "NEXT"
-      }
-    ],
-    [
-      7,
-      8,
-      {
-        "relation": "NEXT"
-      }
-    ]
-  ]
-}
+  }
 }
