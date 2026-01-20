@@ -42,17 +42,45 @@ def execute_with_observability(qc, name: str):
 
     graph = build_event_graph(events)
     t3 = time.perf_counter()
-        
-    # Store in Neo4j only if available
+
+    # Calculate performance metrics
+    event_time = t2 - t1
+    graph_time = t3 - t2
+    t4 = None
+    neo4j_time = None
+    total_time = None
+
     if neo4j_store:
+        t3a = time.perf_counter()
         neo4j_store.store_event_graph(
             events=events,
             execution_id=execution_id,
             edges=list(graph.edges(data=True)),
-            circuit_name=name
+            circuit_name=name,
+            performance={
+                "event_extraction_time_ms": round(event_time * 1000, 4),
+                "in_memory_graph_time_ms": round(graph_time * 1000, 4),
+                "neo4j_persistence_time_ms": None,  # Will set below
+                "total_observability_time_ms": None  # Will set below
+            }
         )
-    
-    t4 = time.perf_counter()
+        t4 = time.perf_counter()
+        neo4j_time = t4 - t3a
+        total_time = t4 - t1
+        # Update the node with final timings (optional, for accuracy)
+        neo4j_store.driver.session().run(
+            """
+            MATCH (x:Execution {execution_id: $execution_id})
+            SET x.neo4j_persistence_time_ms = $neo4j_persistence_time_ms,
+                x.total_observability_time_ms = $total_observability_time_ms
+            """,
+            execution_id=execution_id,
+            neo4j_persistence_time_ms=round(neo4j_time * 1000, 4) if neo4j_time else None,
+            total_observability_time_ms=round(total_time * 1000, 4) if total_time else None
+        )
+    else:
+        t4 = time.perf_counter()
+        total_time = t4 - t1
 
     return {
         "execution_id": execution_id,

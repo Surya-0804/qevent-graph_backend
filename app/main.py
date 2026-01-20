@@ -2,11 +2,13 @@ from fastapi import FastAPI
 import subprocess
 
 from app.api.routes import router
+from app.api.execution_routes import router as execution_router
 
 
 app = FastAPI(title="Event-Graph Quantum Backend")
 
 app.include_router(router)
+app.include_router(execution_router)
 
 @app.get("/")
 def health():
