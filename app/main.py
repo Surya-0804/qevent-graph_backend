@@ -3,6 +3,7 @@ import subprocess
 
 from app.api.routes import router
 from app.api.execution_routes import router as execution_router
+from app.api.replay_routes import router as replay_router
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -18,6 +19,7 @@ app.add_middleware(
 )
 app.include_router(router)
 app.include_router(execution_router)
+app.include_router(replay_router)
 
 @app.get("/")
 def health():
