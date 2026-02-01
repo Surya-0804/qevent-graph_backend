@@ -1,18 +1,22 @@
 from fastapi import FastAPI
 import subprocess
+import os
+from dotenv import load_dotenv
 
 from app.api.routes import router
 from app.api.execution_routes import router as execution_router
 from app.api.replay_routes import router as replay_router
 from fastapi.middleware.cors import CORSMiddleware
 
+load_dotenv()
 
 app = FastAPI(title="Event-Graph Quantum Backend")
 
-# Add CORS middleware
+# Add CORS middleware - origins from environment variable
+allowed_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Your Next.js frontend URL
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

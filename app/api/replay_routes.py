@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
+from neo4j.exceptions import ServiceUnavailable
 from typing import Annotated
 
 from app.graph.neo4j_store import Neo4jStore
@@ -7,6 +8,9 @@ from app.replay.divergence import compare_executions
 from app.core.dependencies import get_neo4j_store
 
 router = APIRouter(prefix="/api/replay", tags=["Replay"])
+
+# Maximum allowed step index to prevent abuse
+MAX_STEP_INDEX = 10000
 
 # ==================== DEPENDENCY INJECTION ====================
 
@@ -30,23 +34,30 @@ def compare_two_executions(
     Compare two execution replays and detect divergence.
     Useful for comparing Bell vs GHZ, Noise vs No-noise, etc.
     """
-    steps_a = engine.replay_execution(exec_id_a)
-    steps_b = engine.replay_execution(exec_id_b)
-    
-    if not steps_a:
-        raise HTTPException(status_code=404, detail=f"Execution {exec_id_a} not found")
-    if not steps_b:
-        raise HTTPException(status_code=404, detail=f"Execution {exec_id_b} not found")
-    
-    comparison = compare_executions(steps_a, steps_b)
-    
-    return {
-        "execution_a": exec_id_a,
-        "execution_b": exec_id_b,
-        "total_steps_a": len(steps_a),
-        "total_steps_b": len(steps_b),
-        **comparison
-    }
+    try:
+        # Fetch first execution
+        steps_a = engine.replay_execution(exec_id_a)
+        if not steps_a:
+            raise HTTPException(status_code=404, detail=f"Execution {exec_id_a} not found")
+        
+        # Fetch second execution only if first exists
+        steps_b = engine.replay_execution(exec_id_b)
+        if not steps_b:
+            raise HTTPException(status_code=404, detail=f"Execution {exec_id_b} not found")
+        
+        comparison = compare_executions(steps_a, steps_b)
+        
+        return {
+            "execution_a": exec_id_a,
+            "execution_b": exec_id_b,
+            "total_steps_a": len(steps_a),
+            "total_steps_b": len(steps_b),
+            **comparison
+        }
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except ServiceUnavailable:
+        raise HTTPException(status_code=503, detail="Database temporarily unavailable")
 
 
 @router.get("/{execution_id}")
@@ -58,38 +69,53 @@ def replay_execution(
     Return full ordered replay sequence for an execution.
     Frontend can use this for auto-play or manual step navigation.
     """
-    steps = engine.replay_execution(execution_id)
-    if not steps:
-        raise HTTPException(status_code=404, detail="Execution not found")
+    try:
+        steps = engine.replay_execution(execution_id)
+        if not steps:
+            raise HTTPException(status_code=404, detail="Execution not found")
 
-    return {
-        "execution_id": execution_id,
-        "total_steps": len(steps),
-        "steps": steps
-    }
+        return {
+            "execution_id": execution_id,
+            "total_steps": len(steps),
+            "steps": steps
+        }
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except ServiceUnavailable:
+        raise HTTPException(status_code=503, detail="Database temporarily unavailable")
 
 
 @router.get("/{execution_id}/step/{step_index}")
 def replay_single_step(
     execution_id: str,
-    step_index: int,
+    step_index: Annotated[int, Query(ge=0, le=MAX_STEP_INDEX, description="Step index (0-based)")],
     engine: Annotated[ReplayEngine, Depends(get_engine)]
 ):
     """
     Get a single step from the execution replay.
     Used for step-by-step navigation (Next/Previous buttons).
     """
-    steps = engine.replay_execution(execution_id)
+    try:
+        steps = engine.replay_execution(execution_id)
 
-    if not steps:
-        raise HTTPException(status_code=404, detail="Execution not found")
-        
-    if step_index < 0 or step_index >= len(steps):
-        raise HTTPException(status_code=400, detail="Invalid step index")
+        if not steps:
+            raise HTTPException(status_code=404, detail="Execution not found")
+            
+        if step_index >= len(steps):
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid step index. Max index is {len(steps) - 1}"
+            )
 
-    return {
-        "execution_id": execution_id,
-        "step_index": step_index,
-        "total_steps": len(steps),
-        "event": steps[step_index]
-    }
+        return {
+            "execution_id": execution_id,
+            "step_index": step_index,
+            "total_steps": len(steps),
+            "has_next": step_index < len(steps) - 1,
+            "has_previous": step_index > 0,
+            "event": steps[step_index]
+        }
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except ServiceUnavailable:
+        raise HTTPException(status_code=503, detail="Database temporarily unavailable")
