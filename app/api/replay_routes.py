@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, HTTPException, Depends, Path
 from neo4j.exceptions import ServiceUnavailable
 from typing import Annotated
 
@@ -88,7 +88,7 @@ def replay_execution(
 @router.get("/{execution_id}/step/{step_index}")
 def replay_single_step(
     execution_id: str,
-    step_index: Annotated[int, Query(ge=0, le=MAX_STEP_INDEX, description="Step index (0-based)")],
+    step_index: Annotated[int, Path(ge=0, le=MAX_STEP_INDEX, description="Step index (0-based)")],
     engine: Annotated[ReplayEngine, Depends(get_engine)]
 ):
     """
