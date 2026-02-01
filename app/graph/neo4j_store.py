@@ -51,11 +51,19 @@ class Neo4jStore:
 
     # ==================== WRITE OPERATIONS ====================
 
-    def store_event_graph(self, events, execution_id: str, edges, circuit_name: str, performance: dict) -> bool:
+    def store_event_graph(
+        self, 
+        events, 
+        execution_id: str, 
+        edges, 
+        circuit_name: str, 
+        performance: dict,
+        noise_config: Optional[Dict] = None
+    ) -> bool:
         """Store quantum execution event graph in Neo4j, including Execution node and performance stats."""
         try:
             with self.driver.session() as session:
-                # 1. Create Execution node with performance stats
+                # 1. Create Execution node with performance stats and noise config
                 session.run(
                     """
                     CREATE (x:Execution {
@@ -65,6 +73,12 @@ class Neo4jStore:
                         in_memory_graph_time_ms: $in_memory_graph_time_ms,
                         neo4j_persistence_time_ms: $neo4j_persistence_time_ms,
                         total_observability_time_ms: $total_observability_time_ms,
+                        is_noisy: $is_noisy,
+                        noise_type: $noise_type,
+                        noise_level: $noise_level,
+                        single_gate_error: $single_gate_error,
+                        two_gate_error: $two_gate_error,
+                        measurement_error: $measurement_error,
                         created_at: datetime()
                     })
                     """,
@@ -73,7 +87,13 @@ class Neo4jStore:
                     event_extraction_time_ms=performance.get("event_extraction_time_ms"),
                     in_memory_graph_time_ms=performance.get("in_memory_graph_time_ms"),
                     neo4j_persistence_time_ms=performance.get("neo4j_persistence_time_ms"),
-                    total_observability_time_ms=performance.get("total_observability_time_ms")
+                    total_observability_time_ms=performance.get("total_observability_time_ms"),
+                    is_noisy=noise_config is not None,
+                    noise_type=noise_config.get("noise_type") if noise_config else None,
+                    noise_level=noise_config.get("noise_level") if noise_config else None,
+                    single_gate_error=noise_config.get("single_gate_error") if noise_config else None,
+                    two_gate_error=noise_config.get("two_gate_error") if noise_config else None,
+                    measurement_error=noise_config.get("measurement_error") if noise_config else None
                 )
 
                 # 2. Create Event nodes and link to Execution (now includes qubits)
@@ -187,6 +207,9 @@ class Neo4jStore:
                    x.event_extraction_time_ms AS event_extraction_time_ms,
                    x.in_memory_graph_time_ms AS in_memory_graph_time_ms,
                    x.neo4j_persistence_time_ms AS neo4j_persistence_time_ms,
+                   x.is_noisy AS is_noisy,
+                   x.noise_type AS noise_type,
+                   x.noise_level AS noise_level,
                    num_events
             ORDER BY x.created_at DESC
             SKIP $skip
@@ -195,7 +218,7 @@ class Neo4jStore:
         return self._execute_query(query, {"skip": skip, "limit": limit})
 
     def get_execution_by_id(self, execution_id: str) -> Optional[Dict]:
-        """Get execution overview by ID, including performance stats."""
+        """Get execution overview by ID, including performance stats and noise config."""
         query = """
             MATCH (x:Execution {execution_id: $execution_id})
             OPTIONAL MATCH (x)-[:HAS_EVENT]->(e:Event)
@@ -208,7 +231,13 @@ class Neo4jStore:
                 x.in_memory_graph_time_ms AS in_memory_graph_time_ms,
                 x.neo4j_persistence_time_ms AS neo4j_persistence_time_ms,
                 x.total_observability_time_ms AS total_observability_time_ms,
-                x.created_at AS created_at
+                x.created_at AS created_at,
+                x.is_noisy AS is_noisy,
+                x.noise_type AS noise_type,
+                x.noise_level AS noise_level,
+                x.single_gate_error AS single_gate_error,
+                x.two_gate_error AS two_gate_error,
+                x.measurement_error AS measurement_error
         """
         result = self._execute_query(query, {"execution_id": execution_id})
         return result[0] if result and result[0].get("execution_id") else None
