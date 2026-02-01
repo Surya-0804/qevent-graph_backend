@@ -1,7 +1,9 @@
 import os
 import time
 import uuid
+from typing import Optional, Dict, Any
 from app.quantum.runner import run_circuit
+from app.quantum.noise_models import get_noise_model, NoiseConfig
 from app.logging.event_extractor import extract_events
 from app.graph.graph_builder import build_event_graph
 from app.graph.neo4j_store import Neo4jStore
@@ -27,12 +29,34 @@ else:
     print("Warning: Neo4j connection details not set. Running without Neo4j integration.")
 
 
-def execute_with_observability(qc, name: str):
+def execute_with_observability(
+    qc, 
+    name: str,
+    noise_type: Optional[str] = None,
+    noise_level: str = "medium"
+) -> Dict[str, Any]:
     """
     Executes a quantum circuit and captures
     observability metrics and event graph.
+    
+    Args:
+        qc: QuantumCircuit to execute
+        name: Circuit name for identification
+        noise_type: Optional noise type ("depolarizing" or "thermal")
+        noise_level: Noise level ("low", "medium", "high", "very_high")
+        
+    Returns:
+        Execution results with metrics, events, and graph data
     """
-    counts = run_circuit(qc)
+    # Get noise model if specified
+    noise_model = None
+    noise_config_dict = None
+    if noise_type:
+        noise_model, noise_config = get_noise_model(noise_type, noise_level)
+        noise_config_dict = noise_config.to_dict(noise_type=noise_type, noise_level=noise_level)
+        name = f"{name}_noisy_{noise_type}_{noise_level}"
+    
+    counts = run_circuit(qc, noise_model=noise_model)
     
     execution_id = str(uuid.uuid4())
 
@@ -50,6 +74,9 @@ def execute_with_observability(qc, name: str):
     neo4j_time = None
     total_time = None
 
+    # Prepare noise config for storage (already includes type and level)
+    noise_config_for_storage = noise_config_dict
+
     if neo4j_store:
         t3a = time.perf_counter()
         neo4j_store.store_event_graph(
@@ -62,7 +89,8 @@ def execute_with_observability(qc, name: str):
                 "in_memory_graph_time_ms": round(graph_time * 1000, 4),
                 "neo4j_persistence_time_ms": None,  # Will set below
                 "total_observability_time_ms": None  # Will set below
-            }
+            },
+            noise_config=noise_config_for_storage
         )
         t4 = time.perf_counter()
         neo4j_time = t4 - t3a
@@ -95,4 +123,6 @@ def execute_with_observability(qc, name: str):
         "events": [e.__dict__ for e in events],
         "nodes": list(graph.nodes(data=True)),
         "edges": list(graph.edges(data=True)),
+        "noise_config": noise_config_dict,
+        "is_noisy": noise_type is not None
     }

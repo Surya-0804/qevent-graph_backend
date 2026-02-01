@@ -31,11 +31,29 @@ class ExecutionQueryService:
 
         enriched = []
         for e in executions:
-            enriched.append({
-                **e,
+            # Format created_at datetime properly
+            created_at = e.get("created_at")
+            if created_at and hasattr(created_at, 'isoformat'):
+                created_at = created_at.isoformat()
+
+            item = {
+                "execution_id": e.get("execution_id"),
+                "circuit_name": e.get("circuit_name"),
+                "num_events": e.get("num_events"),
                 "event_count": e.get("num_events"),
-                "time": e.get("total_time")
-            })
+                "time": e.get("total_time"),
+                "created_at": created_at,
+                "is_noisy": e.get("is_noisy", False),
+            }
+
+            # Group noise config if execution is noisy
+            if e.get("is_noisy"):
+                item["noise_config"] = {
+                    "noise_type": e.get("noise_type"),
+                    "noise_level": e.get("noise_level"),
+                }
+
+            enriched.append(item)
 
         return {
             "page": page,
@@ -59,15 +77,39 @@ class ExecutionQueryService:
         # Graph data from Neo4j
         graph = self._store.get_execution_graph(execution_id)
 
-        # Merge all
-        overview = {**basic}
+        # Format created_at datetime properly
+        created_at = basic.get("created_at")
+        if created_at and hasattr(created_at, 'isoformat'):
+            created_at = created_at.isoformat()
+
+        # Build clean response with grouped noise_config
+        overview = {
+            "execution_id": basic.get("execution_id"),
+            "circuit_name": basic.get("circuit_name"),
+            "num_events": basic.get("num_events"),
+            "last_timestamp": basic.get("last_timestamp"),
+            "created_at": created_at,
+            "is_noisy": basic.get("is_noisy", False),
+        }
+
+        # Group noise config if execution is noisy
+        if basic.get("is_noisy"):
+            overview["noise_config"] = {
+                "noise_type": basic.get("noise_type"),
+                "noise_level": basic.get("noise_level"),
+                "single_gate_error": basic.get("single_gate_error"),
+                "two_gate_error": basic.get("two_gate_error"),
+                "measurement_error": basic.get("measurement_error"),
+            }
+
+        # Performance stats
         overview["performance_stats"] = {
             "event_extraction_time_ms": basic.get("event_extraction_time_ms"),
             "in_memory_graph_time_ms": basic.get("in_memory_graph_time_ms"),
             "neo4j_persistence_time_ms": basic.get("neo4j_persistence_time_ms"),
             "total_observability_time_ms": basic.get("total_observability_time_ms"),
-            "created_at": basic.get("created_at")
         }
+
         overview["graph"] = graph
         return overview
 
