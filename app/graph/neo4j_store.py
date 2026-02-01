@@ -150,14 +150,17 @@ class Neo4jStore:
         """Get paginated list of executions ordered by most recent (from Execution node)."""
         query = """
             MATCH (x:Execution)
+            OPTIONAL MATCH (x)-[:HAS_EVENT]->(e:Event)
+            WITH x, count(e) AS num_events
             RETURN x.execution_id AS execution_id,
                    x.circuit_name AS circuit_name,
                    x.total_observability_time_ms AS total_time,
                    x.created_at AS created_at,
                    x.event_extraction_time_ms AS event_extraction_time_ms,
                    x.in_memory_graph_time_ms AS in_memory_graph_time_ms,
-                   x.neo4j_persistence_time_ms AS neo4j_persistence_time_ms
-            ORDER BY created_at DESC
+                   x.neo4j_persistence_time_ms AS neo4j_persistence_time_ms,
+                   num_events
+            ORDER BY x.created_at DESC
             SKIP $skip
             LIMIT $limit
         """
