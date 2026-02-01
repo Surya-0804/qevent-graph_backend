@@ -76,7 +76,7 @@ class Neo4jStore:
                     total_observability_time_ms=performance.get("total_observability_time_ms")
                 )
 
-                # 2. Create Event nodes and link to Execution
+                # 2. Create Event nodes and link to Execution (now includes qubits)
                 event_data = [
                     {
                         "execution_id": execution_id,
@@ -84,6 +84,8 @@ class Neo4jStore:
                         "event_type": event.event_type,
                         "timestamp": event.timestamp,
                         "gate_name": getattr(event, "gate_name", None),
+                        "qubits": getattr(event, "qubits", None),
+                        "classical_bits": getattr(event, "classical_bits", None),
                         "circuit_name": circuit_name
                     }
                     for event in events
@@ -99,6 +101,8 @@ class Neo4jStore:
                         event_type: event.event_type,
                         timestamp: event.timestamp,
                         gate_name: event.gate_name,
+                        qubits: event.qubits,
+                        classical_bits: event.classical_bits,
                         circuit_name: event.circuit_name
                     })
                     CREATE (x)-[:HAS_EVENT]->(e)
@@ -107,13 +111,14 @@ class Neo4jStore:
                 )
 
                 # 3. Create NEXT edges in batch
-                edge_data = [
+                next_edges = [
                     {
                         "execution_id": execution_id,
                         "src": src,
                         "dst": dst
                     }
-                    for src, dst, _ in edges
+                    for src, dst, data in edges
+                    if data.get("relation") == "NEXT"
                 ]
 
                 session.run(
@@ -123,8 +128,31 @@ class Neo4jStore:
                           (b:Event {execution_id: edge.execution_id, event_id: edge.dst})
                     CREATE (a)-[:NEXT]->(b)
                     """,
-                    edges=edge_data
+                    edges=next_edges
                 )
+
+                # 4. Create QUBIT_DEP edges in batch (new!)
+                qubit_dep_edges = [
+                    {
+                        "execution_id": execution_id,
+                        "src": src,
+                        "dst": dst,
+                        "qubits": data.get("qubits", [])
+                    }
+                    for src, dst, data in edges
+                    if data.get("relation") == "QUBIT_DEP"
+                ]
+
+                if qubit_dep_edges:
+                    session.run(
+                        """
+                        UNWIND $edges AS edge
+                        MATCH (a:Event {execution_id: edge.execution_id, event_id: edge.src}),
+                              (b:Event {execution_id: edge.execution_id, event_id: edge.dst})
+                        CREATE (a)-[:QUBIT_DEP {qubits: edge.qubits}]->(b)
+                        """,
+                        edges=qubit_dep_edges
+                    )
 
             self._connected = True
             return True
@@ -186,22 +214,37 @@ class Neo4jStore:
         return result[0] if result and result[0].get("execution_id") else None
 
     def get_execution_graph(self, execution_id: str) -> Dict[str, List[Dict]]:
-        """Get event nodes and edges for graph visualization."""
+        """Get event nodes and edges (NEXT + QUBIT_DEP) for graph visualization."""
         nodes_query = """
             MATCH (e:Event {execution_id: $execution_id})
             RETURN e.event_id AS id,
                    e.event_type AS type,
                    e.gate_name AS gate,
+                   e.qubits AS qubits,
                    e.timestamp AS timestamp
             ORDER BY e.timestamp
         """
-        edges_query = """
+        # Get NEXT edges (temporal)
+        next_edges_query = """
             MATCH (a:Event {execution_id: $execution_id})-[:NEXT]->(b:Event)
             RETURN a.event_id AS source,
-                   b.event_id AS target
+                   b.event_id AS target,
+                   'NEXT' AS relation
+        """
+        # Get QUBIT_DEP edges (data-flow)
+        qubit_dep_edges_query = """
+            MATCH (a:Event {execution_id: $execution_id})-[r:QUBIT_DEP]->(b:Event)
+            RETURN a.event_id AS source,
+                   b.event_id AS target,
+                   'QUBIT_DEP' AS relation,
+                   r.qubits AS qubits
         """
         params = {"execution_id": execution_id}
+        
+        next_edges = self._execute_query(next_edges_query, params)
+        qubit_dep_edges = self._execute_query(qubit_dep_edges_query, params)
+        
         return {
             "nodes": self._execute_query(nodes_query, params),
-            "edges": self._execute_query(edges_query, params)
+            "edges": next_edges + qubit_dep_edges
         }
